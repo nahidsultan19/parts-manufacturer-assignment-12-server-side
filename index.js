@@ -18,6 +18,7 @@ async function run() {
         await client.connect();
         const partsCollection = client.db("partsManufacturer").collection("parts");
         const orderCollection = client.db("partsManufacturer").collection("orders");
+        const userCollection = client.db("partsManufacturer").collection("users");
 
         //get all parts
         app.get('/parts', async (req, res) => {
@@ -30,6 +31,18 @@ async function run() {
         app.post('/order', async (req, res) => {
             const query = req.body;
             const result = await orderCollection.insertOne(query);
+            res.send(result);
+        })
+
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         })
 
