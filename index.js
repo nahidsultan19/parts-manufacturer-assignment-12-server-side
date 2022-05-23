@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 app.use(cors())
 app.use(express.json())
@@ -45,12 +45,25 @@ async function run() {
             const parts = await cursor.toArray();
             res.send(parts);
         });
+        //add parts
+        app.post('/parts', async (req, res) => {
+            const query = req.body;
+            const result = await partsCollection.insertOne(query);
+            res.send(result);
+        })
+
+        //parts detail
+        app.get('/part/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await partsCollection.findOne(query);
+            res.send(result);
+        })
 
         //get order by user
         app.get('/order', async (req, res) => {
             const email = req.query.email;
             const query = { email: email };
-            console.log(query);
             const orders = await orderCollection.find(query).toArray();
             res.send(orders);
         })
@@ -60,6 +73,14 @@ async function run() {
             const result = await orderCollection.insertOne(query);
             res.send(result);
         });
+
+        //delete order
+        app.delete('/order-delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const order = await orderCollection.deleteOne(query);
+            res.send(order);
+        })
 
         //get all users
         app.get('/users', verifyJWT, async (req, res) => {
