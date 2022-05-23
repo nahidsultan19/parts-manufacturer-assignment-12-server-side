@@ -36,6 +36,7 @@ async function run() {
         const partsCollection = client.db("partsManufacturer").collection("parts");
         const orderCollection = client.db("partsManufacturer").collection("orders");
         const userCollection = client.db("partsManufacturer").collection("users");
+        const reviewCollection = client.db("partsManufacturer").collection("reviews");
 
         //get all parts
         app.get('/parts', async (req, res) => {
@@ -49,13 +50,13 @@ async function run() {
             const query = req.body;
             const result = await orderCollection.insertOne(query);
             res.send(result);
-        })
+        });
 
         //get all users
         app.get('/users', verifyJWT, async (req, res) => {
             const users = await userCollection.find().toArray();
             res.send(users)
-        })
+        });
 
         // find admin
         app.get('/admin/:email', verifyJWT, async (req, res) => {
@@ -63,7 +64,7 @@ async function run() {
             const user = await userCollection.findOne({ email: email })
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin })
-        })
+        });
 
         // make an admin
         app.put('/user/admin/:email', verifyJWT, async (req, res) => {
@@ -81,7 +82,7 @@ async function run() {
                 res.status(403).send({ message: 'forbidded' });
             }
 
-        })
+        });
 
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
@@ -94,6 +95,20 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc, options);
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN, { expiresIn: '1h' })
             res.send({ result, token });
+        });
+
+        //get all review
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews)
+        })
+        // create review
+        app.post('/review', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.send(result);
         })
 
     }
