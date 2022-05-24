@@ -61,11 +61,18 @@ async function run() {
         })
 
         //get order by user
-        app.get('/order', async (req, res) => {
+        app.get('/order', verifyJWT, async (req, res) => {
             const email = req.query.email;
             const query = { email: email };
             const orders = await orderCollection.find(query).toArray();
             res.send(orders);
+        });
+        //get order by id
+        app.get('/order/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const order = await orderCollection.findOne(query);
+            res.send(order)
         })
         //create order
         app.post('/order', async (req, res) => {
