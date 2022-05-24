@@ -74,6 +74,13 @@ async function run() {
             const query = { _id: ObjectId(id) }
             const result = await partsCollection.findOne(query);
             res.send(result);
+        });
+        //delete parts
+        app.delete('parts-delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await partsCollection.deleteOne(query);
+            res.send(result);
         })
 
         //get order by user
