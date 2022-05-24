@@ -6,6 +6,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 app.use(cors())
 app.use(express.json())
 
@@ -38,6 +40,20 @@ async function run() {
         const userCollection = client.db("partsManufacturer").collection("users");
         const reviewCollection = client.db("partsManufacturer").collection("reviews");
 
+
+        // payment api
+        app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+            const { order } = req.body;
+            const price = order.price;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+            res.send({ clientSecret: paymentIntent.client_secret })
+        })
+
         //get all parts
         app.get('/parts', async (req, res) => {
             const query = {};
@@ -53,7 +69,7 @@ async function run() {
         })
 
         //parts detail
-        app.get('/part/:id', async (req, res) => {
+        app.get('/parts/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const result = await partsCollection.findOne(query);
@@ -66,6 +82,7 @@ async function run() {
             const query = { email: email };
             const orders = await orderCollection.find(query).toArray();
             res.send(orders);
+
         });
         //get order by id
         app.get('/order/:id', verifyJWT, async (req, res) => {
