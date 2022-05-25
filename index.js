@@ -78,11 +78,19 @@ async function run() {
             res.send(result);
         });
         //delete parts
-        app.delete('parts-delete/:id', async (req, res) => {
+        app.delete('/parts-delete/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await partsCollection.deleteOne(query);
             res.send(result);
+        });
+
+        //get all orders
+        app.get('/orders', verifyJWT, async (req, res) => {
+            const query = {};
+            const cursor = orderCollection.find(query);
+            const orders = await cursor.toArray();
+            res.send(orders)
         })
 
         //get order by user
@@ -201,11 +209,11 @@ async function run() {
         //profile update
         app.put('/profile/:email', async (req, res) => {
             const email = req.params.email;
-            const profile = req.body;
+            const userProfile = req.body;
             const filter = { email: email };
             const options = { upsert: true };
             const updateDoc = {
-                $set: profile
+                $set: userProfile
             };
             const result = await profileCollection.updateOne(filter, updateDoc, options);
             res.send(result);
