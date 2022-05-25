@@ -107,6 +107,7 @@ async function run() {
             res.send(result);
         });
 
+        // update order and payment
         app.patch('/order/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const payment = req.body;
@@ -120,7 +121,8 @@ async function run() {
             const updatedOrder = await orderCollection.updateOne(filter, updateDoc);
             const result = await paymentCollection.insertOne(payment);
             res.send(updateDoc);
-        })
+        });
+
 
         //delete order
         app.delete('/order-delete/:id', async (req, res) => {
