@@ -38,12 +38,14 @@ async function run() {
         const partsCollection = client.db("partsManufacturer").collection("parts");
         const orderCollection = client.db("partsManufacturer").collection("orders");
         const userCollection = client.db("partsManufacturer").collection("users");
+        const profileCollection = client.db("partsManufacturer").collection("profile");
         const reviewCollection = client.db("partsManufacturer").collection("reviews");
+        const paymentCollection = client.db("partsManufacturer").collection("payments");
 
 
         // payment api
         app.post('/create-payment-intent', verifyJWT, async (req, res) => {
-            const { order } = req.body;
+            const order = req.body;
             const price = order.price;
             const amount = price * 100;
             const paymentIntent = await stripe.paymentIntents.create({
@@ -105,6 +107,21 @@ async function run() {
             res.send(result);
         });
 
+        app.patch('/order/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId,
+                }
+            }
+            const updatedOrder = await orderCollection.updateOne(filter, updateDoc);
+            const result = await paymentCollection.insertOne(payment);
+            res.send(updateDoc);
+        })
+
         //delete order
         app.delete('/order-delete/:id', async (req, res) => {
             const id = req.params.id;
@@ -154,7 +171,7 @@ async function run() {
                 $set: user
             };
             const result = await userCollection.updateOne(filter, updateDoc, options);
-            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN, { expiresIn: '1h' })
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN, { expiresIn: '1d' })
             res.send({ result, token });
         });
 
@@ -169,6 +186,26 @@ async function run() {
         app.post('/review', async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
+            res.send(result);
+        });
+
+        //profile
+        app.get('/profile/:email', async (req, res) => {
+            const email = req.params.email;
+            const userProfile = await profileCollection.findOne({ email: email })
+            res.send(userProfile)
+        });
+
+        //profile update
+        app.put('/profile/:email', async (req, res) => {
+            const email = req.params.email;
+            const profile = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: profile
+            };
+            const result = await profileCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         })
 
