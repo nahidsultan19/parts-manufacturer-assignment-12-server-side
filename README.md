@@ -1,4 +1,4 @@
-## Parts Store
+## Parts Manufacturer
 ## Live Website Link
 [https://parts-manufacturer-90332.web.app/](https://parts-manufacturer-90332.web.app/)
 
