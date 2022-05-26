@@ -213,7 +213,7 @@ async function run() {
             const filter = { email: email };
             const options = { upsert: true };
             const updateDoc = {
-                $set: userProfile
+                $set: { address: userProfile.address, phone: userProfile.phone }
             };
             const result = await profileCollection.updateOne(filter, updateDoc, options);
             res.send(result);
