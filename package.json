@@ -1,7 +1,7 @@
 {
   "name": "tools-manufacturer-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "[https://parts-manufacturer-90332.web.app/](https://parts-manufacturer-90332.web.app/)",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -18,5 +18,13 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.6.0",
     "stripe": "^9.4.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nahidsultan19/parts-manufacturer-server-side.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nahidsultan19/parts-manufacturer-server-side/issues"
+  },
+  "homepage": "https://github.com/nahidsultan19/parts-manufacturer-server-side#readme"
 }
